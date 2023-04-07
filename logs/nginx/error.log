@@ -1,0 +1,2 @@
+2023/04/07 04:23:40 [emerg] 9#9: a duplicate default server for 0.0.0.0:80 in /etc/nginx/sites-available/default.conf:46
+2023/04/07 04:24:35 [emerg] 9#9: invalid parameter "default_server1" in /etc/nginx/sites-available/default.conf:46
