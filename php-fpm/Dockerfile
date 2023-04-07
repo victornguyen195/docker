@@ -1,10 +1,10 @@
 ARG PHP_VERSION
-ARG INSTALL_XDEBUG=false
+ARG INSTALL_XDEBUG=true
 ARG XDEBUG_PORT=9003
 
 FROM php:${PHP_VERSION}-fpm-alpine
 
-RUN apk add --no-cache mysql-client msmtp perl wget procps shadow libzip libpng libjpeg-turbo libwebp freetype icu icu-data-full bash
+RUN apk add --no-cache mysql-client msmtp perl wget procps shadow libzip libpng libjpeg-turbo libwebp freetype icu icu-data-full bash libxml2-dev libxslt-dev linux-headers vim php-pear autoconf automake libtool
 
 RUN apk add --no-cache --virtual build-essentials \
     icu-dev icu-libs zlib-dev g++ make automake autoconf libzip-dev \
@@ -12,13 +12,16 @@ RUN apk add --no-cache --virtual build-essentials \
     docker-php-ext-configure gd --enable-gd --with-freetype --with-jpeg --with-webp && \
     docker-php-ext-install gd && \
     docker-php-ext-install bcmath && \
-    docker-php-ext-install cli && \
     docker-php-ext-install mysqli && \
     docker-php-ext-install pdo_mysql && \
     docker-php-ext-install intl && \
     docker-php-ext-install opcache && \
     docker-php-ext-install exif && \
     docker-php-ext-install zip && \
+    docker-php-ext-install xml && \
+    docker-php-ext-install soap && \
+    docker-php-ext-install sockets && \
+    docker-php-ext-install xsl && \
     apk del build-essentials && rm -rf /usr/src/php*
 
 RUN wget https://getcomposer.org/composer-stable.phar -O /usr/local/bin/composer && chmod +x /usr/local/bin/composer
@@ -27,6 +30,8 @@ RUN wget https://getcomposer.org/composer-stable.phar -O /usr/local/bin/composer
 RUN if [ ${INSTALL_XDEBUG} = true ]; then \
   # Install the xdebug extension
   # https://xdebug.org/docs/compat
+  apk add --no-cache --virtual .build-deps $PHPIZE_DEPS && \
+  apk add --update linux-headers && \
   if [ $(php -r "echo PHP_MAJOR_VERSION;") = "8" ] || { [ $(php -r "echo PHP_MAJOR_VERSION;") = "7" ] && { [ $(php -r "echo PHP_MINOR_VERSION;") = "4" ] || [ $(php -r "echo PHP_MINOR_VERSION;") = "3" ] ;} ;}; then \
     if [ ${PHP_VERSION} = "8.2" ]; then \
       pecl install xdebug-3.2.0; \
@@ -44,7 +49,8 @@ RUN if [ ${INSTALL_XDEBUG} = true ]; then \
       fi \
     fi \
   fi && \
-  docker-php-ext-enable xdebug \
+  docker-php-ext-enable xdebug && \
+  apk del -f .build-deps \
 ;fi
 
 
