@@ -81,6 +81,13 @@ RUN if [ $(php -r "echo PHP_MAJOR_VERSION;") = "8" ] || { [ $(php -r "echo PHP_M
 ;fi
 RUN sed -i "s/xdebug.cli_color=0/xdebug.cli_color=1/" /usr/local/etc/php/conf.d/xdebug.ini
 
+# Install mailhog
+RUN apk add --no-cache curl go && \
+    echo $PATH && \
+    go version && \
+    go install github.com/mailhog/mhsendmail@latest
+RUN cp /root/go/bin/mhsendmail /usr/bin/mhsendmail
+
 WORKDIR /var/www/html
 
 CMD ["php-fpm"]
