@@ -1,6 +1,4 @@
 ARG PHP_VERSION
-ARG INSTALL_XDEBUG=true
-ARG XDEBUG_PORT=9003
 
 FROM php:${PHP_VERSION}-fpm-alpine
 
@@ -27,13 +25,21 @@ RUN apk add --no-cache --virtual build-essentials \
 RUN wget https://getcomposer.org/composer-stable.phar -O /usr/local/bin/composer && chmod +x /usr/local/bin/composer
 
 
+# Define the variable in the Dockerfile
+ARG INSTALL_XDEBUG
+ARG PHP_VERSION
+# Pass the variable to the RUN command using ENV - Required to write after FROM
+ENV INSTALL_XDEBUG=${INSTALL_XDEBUG}
+ENV PHP_VERSION=${PHP_VERSION}
+
 RUN if [ ${INSTALL_XDEBUG} = true ]; then \
   # Install the xdebug extension
   # https://xdebug.org/docs/compat
   apk add --no-cache --virtual .build-deps $PHPIZE_DEPS && \
   apk add --update linux-headers && \
   if [ $(php -r "echo PHP_MAJOR_VERSION;") = "8" ] || { [ $(php -r "echo PHP_MAJOR_VERSION;") = "7" ] && { [ $(php -r "echo PHP_MINOR_VERSION;") = "4" ] || [ $(php -r "echo PHP_MINOR_VERSION;") = "3" ] ;} ;}; then \
-    if [ ${PHP_VERSION} = "8.2" ]; then \
+    # Why change to 8.2.4 ????? Maybe same variable name
+    if [ ${PHP_VERSION} = "8.2.4" ]; then \
       pecl install xdebug-3.2.0; \
     else \
       pecl install xdebug-3.1.4; \
@@ -57,11 +63,14 @@ RUN if [ ${INSTALL_XDEBUG} = true ]; then \
 # Copy xdebug configuration for remote debugging
 COPY ./xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
 
+
+ARG XDEBUG_PORT=9003
+ENV XDEBUG_PORT=${XDEBUG_PORT}
 RUN if [ $(php -r "echo PHP_MAJOR_VERSION;") = "8" ] || { [ $(php -r "echo PHP_MAJOR_VERSION;") = "7" ] && { [ $(php -r "echo PHP_MINOR_VERSION;") = "4" ] || [ $(php -r "echo PHP_MINOR_VERSION;") = "3" ] ;} ;}; then \
   sed -i "s/xdebug.remote_host=/xdebug.client_host=/" /usr/local/etc/php/conf.d/xdebug.ini && \
-  sed -i "s/xdebug.remote_connect_back=0/xdebug.discover_client_host=false/" /usr/local/etc/php/conf.d/xdebug.ini && \
+  sed -i "s/xdebug.remote_connect_back=0/xdebug.discover_client_host=true/" /usr/local/etc/php/conf.d/xdebug.ini && \
   sed -i "s/xdebug.remote_port=9000/xdebug.client_port=${XDEBUG_PORT}/" /usr/local/etc/php/conf.d/xdebug.ini && \
-  sed -i "s/xdebug.profiler_enable=0/; xdebug.profiler_enable=0/" /usr/local/etc/php/conf.d/xdebug.ini && \
+  sed -i "s/xdebug.profiler_enable=0/; xdebug.profiler_enable=1/" /usr/local/etc/php/conf.d/xdebug.ini && \
   sed -i "s/xdebug.profiler_output_dir=/xdebug.output_dir=/" /usr/local/etc/php/conf.d/xdebug.ini && \
   sed -i "s/xdebug.remote_mode=req/; xdebug.remote_mode=req/" /usr/local/etc/php/conf.d/xdebug.ini && \
   sed -i "s/xdebug.remote_autostart=0/xdebug.start_with_request=yes/" /usr/local/etc/php/conf.d/xdebug.ini && \
