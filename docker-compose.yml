@@ -21,6 +21,7 @@ volumes:
 services:
 ### NGINX Server #########################################
   nginx:
+    container_name: ${CONTAINER_NGINX_NAME:-nginx}
     build:
       context: ./nginx
       args:
@@ -61,6 +62,7 @@ services:
 
 ### Percona ################################################
   percona:
+    container_name: ${CONTAINER_PERCONA_NAME:-percona}
     build:
       context: ./percona
     environment:
@@ -115,6 +117,7 @@ services:
 
 ### ElasticSearch ########################################
   elasticsearch:
+    container_name: ${CONTAINER_ELASTICSEARCH_NAME:-elasticsearch}
     build:
       context: ./elasticsearch
       args:
@@ -122,14 +125,14 @@ services:
     volumes:
       - elasticsearch:/usr/share/elasticsearch/data
     environment:
-      - cluster.name=laradock-cluster
-      - node.name=laradock-node
+      - cluster.name=${ELASTICSEARCH_CLUSTER_NAME}
+      - node.name=${ELASTICSEARCH_NODE_NAME}
       - bootstrap.memory_lock=true
       - xpack.security.enabled=false
       - xpack.security.transport.ssl.enabled=false
       - indices.id_field_data.enabled=true
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-      - cluster.initial_master_nodes=laradock-node
+      - cluster.initial_master_nodes=${ELASTICSEARCH_MASTER_NODE}
     ulimits:
       memlock:
         soft: -1
