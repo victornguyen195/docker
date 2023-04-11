@@ -39,7 +39,7 @@ RUN if [ ${INSTALL_XDEBUG} = true ]; then \
   apk add --update linux-headers && \
   if [ $(php -r "echo PHP_MAJOR_VERSION;") = "8" ] || { [ $(php -r "echo PHP_MAJOR_VERSION;") = "7" ] && { [ $(php -r "echo PHP_MINOR_VERSION;") = "4" ] || [ $(php -r "echo PHP_MINOR_VERSION;") = "3" ] ;} ;}; then \
     # Why change to 8.2.4 ????? Maybe same variable name
-    if [ ${PHP_VERSION} = "8.2.4" ]; then \
+    if [ ${PHP_VERSION} = "8.2.4" ] || [ ${PHP_VERSION} = "8.2" ]; then \
       pecl install xdebug-3.2.0; \
     else \
       pecl install xdebug-3.1.4; \
@@ -87,6 +87,7 @@ RUN apk add --no-cache curl go && \
     go version && \
     go install github.com/mailhog/mhsendmail@latest
 RUN cp /root/go/bin/mhsendmail /usr/bin/mhsendmail
+RUN echo 'sendmail_path = /usr/bin/mhsendmail --smtp-addr mailhog_mmem:1025' > /usr/local/etc/php/php.ini
 
 WORKDIR /var/www/html
 
