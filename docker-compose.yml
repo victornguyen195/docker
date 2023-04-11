@@ -155,8 +155,8 @@ services:
     container_name: ${CONTAINER_MAILHOG_NAME:-mailhog}
     build: ./mailhog
     ports:
-      - "1025:1025"
-      - "8025:8025"
+      - "${MAILHOG_SENDMAIL_PORT}:1025"
+      - "${MAILHOG_UI_PORT}:8025"
     networks:
       - frontend
       - backend
