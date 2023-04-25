@@ -2,7 +2,7 @@ ARG PHP_VERSION
 
 FROM php:${PHP_VERSION}-fpm-alpine
 
-RUN apk add --no-cache mysql-client msmtp perl wget procps shadow libzip libpng libjpeg-turbo libwebp freetype icu icu-data-full bash libxml2-dev libxslt-dev linux-headers vim php-pear autoconf automake libtool
+RUN apk add --no-cache mysql-client msmtp perl wget procps shadow libzip libpng libjpeg-turbo libwebp freetype icu icu-data-full bash libxml2-dev libxslt-dev linux-headers vim php-pear autoconf automake libtool patch git
 
 RUN apk add --no-cache --virtual build-essentials \
     icu-dev icu-libs zlib-dev g++ make automake autoconf libzip-dev \
@@ -88,6 +88,10 @@ RUN apk add --no-cache curl go && \
     go install github.com/mailhog/mhsendmail@latest
 RUN cp /root/go/bin/mhsendmail /usr/bin/mhsendmail
 RUN echo 'sendmail_path = /usr/bin/mhsendmail --smtp-addr mailhog_mmem:1025' > /usr/local/etc/php/php.ini
+
+RUN apk add ssmtp && \
+    sed -e s/mailhub=mail/mailhub=mailhog:1025/g /etc/ssmtp/ssmtp.conf > ssmtp.conf.tmp && \
+    mv ssmtp.conf.tmp /etc/ssmtp/ssmtp.conf
 
 WORKDIR /var/www/html
 
