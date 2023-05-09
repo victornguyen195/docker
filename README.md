@@ -24,6 +24,43 @@ server {
 
 ```
 
+### Config with https (Manually)
+
+```
+// Install mkcert IN LOCAL. Do once
+sudo apt install wget libnss3-tools
+export VER="v1.4.4"   // version of mkcert in git
+sudo wget -O mkcert https://github.com/FiloSottile/mkcert/releases/download/${VER}/mkcert-${VER}-linux-amd64
+chmod +x  mkcert
+sudo mv mkcert /usr/local/bin
+
+// Generate certificate for browser 
+mkcert -install
+
+// Generate certificate for site
+mkcert mycar.local  // mycar.local is site name. Generate one with your site name
+
+Then copy <site-name>.pem and <site-name>-key.pem to nginx/ssl/ directory
+
+```
+
+Modify nginx config file
+
+```
+server {
+  listen 443 ssl;
+  ssl_certificate      /etc/nginx/ssl/mycar.local.pem;
+  ssl_certificate_key  /etc/nginx/ssl/mycar.local-key.pem;
+  server_name mycar.local;
+  set $MAGE_ROOT /var/www/html/;
+  set $MAGE_MODE developer;
+  include /var/www/html/nginx.conf.sample;
+  add_header Access-Control-Allow-Origin *;
+}
+
+```
+
+
 ### Step3: Config in .env file
 Ex: nginx port, workdir, version php, ... 
 Then 
