@@ -24,6 +24,9 @@ RUN apk add --no-cache --virtual build-essentials \
 
 RUN wget https://getcomposer.org/composer-stable.phar -O /usr/local/bin/composer && chmod +x /usr/local/bin/composer
 
+# Add install n98 to run cron
+RUN wget https://files.magerun.net/n98-magerun2.phar
+
 
 # Define the variable in the Dockerfile
 ARG INSTALL_XDEBUG
