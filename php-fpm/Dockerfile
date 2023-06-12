@@ -26,6 +26,8 @@ RUN wget https://getcomposer.org/composer-stable.phar -O /usr/local/bin/composer
 
 # Add install n98 to run cron
 RUN wget https://files.magerun.net/n98-magerun2.phar
+RUN chmod +x ./n98-magerun2.phar
+RUN cp ./n98-magerun2.phar /usr/local/bin/
 
 
 # Define the variable in the Dockerfile
