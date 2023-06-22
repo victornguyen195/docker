@@ -29,6 +29,15 @@ RUN wget https://files.magerun.net/n98-magerun2.phar
 RUN chmod +x ./n98-magerun2.phar
 RUN cp ./n98-magerun2.phar /usr/local/bin/
 
+###########################################################################
+# Install Mailhog:
+###########################################################################
+
+RUN apk update && \
+    apk add ssmtp && \
+    sed -e s/mailhub=mail/mailhub=mailhog:1025/g /etc/ssmtp/ssmtp.conf > ssmtp.conf.tmp && \
+    mv ssmtp.conf.tmp /etc/ssmtp/ssmtp.conf
+
 
 # Define the variable in the Dockerfile
 ARG INSTALL_XDEBUG
