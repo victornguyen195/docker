@@ -131,3 +131,4 @@ Run -> Edit Configurations -> + icon -> PHP Web Page
     HTTPS: Click if you want to config HTTPS
     Click: OK
 ```
+### If you want to use RabbitMQ, uncomment rabbitmq in docker-compose.yml file
