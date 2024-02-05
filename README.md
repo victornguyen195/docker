@@ -132,3 +132,4 @@ Run -> Edit Configurations -> + icon -> PHP Web Page
     Click: OK
 ```
 ### If you want to use RabbitMQ, uncomment rabbitmq in docker-compose.yml file
+### If you want to use Opensearch instead of Elasticsearch, uncomment opensearch in docker-compose.yml file and comment elasticsearch

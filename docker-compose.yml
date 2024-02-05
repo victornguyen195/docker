@@ -18,6 +18,8 @@ volumes:
     driver: ${VOLUMES_DRIVER}
   elasticsearch:
     driver: ${VOLUMES_DRIVER}
+  opensearch:
+    driver: ${VOLUMES_DRIVER}
   redis:
     driver: ${VOLUMES_DRIVER}
   phpmyadmin:
@@ -156,6 +158,38 @@ services:
     networks:
       - frontend
       - backend
+
+#  opensearch: # This is also the hostname of the container within the Docker network (i.e. https://opensearch-node1/)
+#    container_name: ${CONTAINER_OPENSEARCH_NAME:-opensearch}
+#    build:
+#      context: ./opensearch
+#      args:
+#        - OPENSEARCH_VERSION=${OPENSEARCH_VERSION} # Specifying the latest available image - modify if you want a specific version
+#    environment:
+#      - cluster.name=${OPENSEARCH_CLUSTER_NAME}
+#      - discovery.type=single-node
+#      - bootstrap.memory_lock=true
+#      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
+#      - "DISABLE_INSTALL_DEMO_CONFIG=true" # disables execution of install_demo_configuration.sh bundled with security plugin, which installs demo certificates and security configurations to OpenSearch
+#      - "DISABLE_SECURITY_PLUGIN=true" # disables security plugin entirely in OpenSearch by setting plugins.security.disabled: true in opensearch.yml
+#    expose:
+#      - "9200"
+#      - "9300"
+#    ulimits:
+#      memlock:
+#        soft: -1 # Set memlock to unlimited (no soft or hard limit)
+#        hard: -1
+#      nofile:
+#        soft: 65536 # Maximum number of open files for the opensearch user - set to at least 65536
+#        hard: 65536
+#    volumes:
+#      - opensearch:/usr/share/opensearch/data # Creates volume called opensearch and mounts it to the container
+#    ports:
+#      - 9200:9200 # REST API
+#      - 9600:9600 # Performance Analyzer
+#    networks:
+#      - frontend
+#      - backend
 
 
 ### Mailhog ################################################
