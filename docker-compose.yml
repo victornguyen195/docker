@@ -172,9 +172,6 @@ services:
 #      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
 #      - "DISABLE_INSTALL_DEMO_CONFIG=true" # disables execution of install_demo_configuration.sh bundled with security plugin, which installs demo certificates and security configurations to OpenSearch
 #      - "DISABLE_SECURITY_PLUGIN=true" # disables security plugin entirely in OpenSearch by setting plugins.security.disabled: true in opensearch.yml
-#    expose:
-#      - "9200"
-#      - "9300"
 #    ulimits:
 #      memlock:
 #        soft: -1 # Set memlock to unlimited (no soft or hard limit)
@@ -185,8 +182,9 @@ services:
 #    volumes:
 #      - opensearch:/usr/share/opensearch/data # Creates volume called opensearch and mounts it to the container
 #    ports:
-#      - 9200:9200 # REST API
-#      - 9600:9600 # Performance Analyzer
+#      - "${OPENSEARCH_HOST_HTTP_PORT}:9200" # REST API
+#      - "${OPENSEARCH_HOST_TRANSPORT_PORT}:9300"
+#      - "${OPENSEARCH_HOST_PERFORMANCE_ANALYZER_PORT}:9600" # Performance Analyzer
 #    networks:
 #      - frontend
 #      - backend
