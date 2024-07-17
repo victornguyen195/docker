@@ -1,43 +1,21 @@
 ARG PHP_VERSION
 
-FROM php:${PHP_VERSION}-fpm-alpine
+FROM php:${PHP_VERSION}-fpm
 
-RUN apk add --no-cache mysql-client msmtp perl wget procps shadow libzip libpng libjpeg-turbo libwebp freetype icu icu-data-full bash libxml2-dev libxslt-dev linux-headers vim php-pear autoconf automake libtool patch git
-
-RUN apk add --no-cache --virtual build-essentials \
-    icu-dev icu-libs zlib-dev g++ make automake autoconf libzip-dev \
-    libpng-dev libwebp-dev libjpeg-turbo-dev freetype-dev && \
-    docker-php-ext-configure gd --enable-gd --with-freetype --with-jpeg --with-webp && \
-    docker-php-ext-install gd && \
-    docker-php-ext-install bcmath && \
-    docker-php-ext-install mysqli && \
-    docker-php-ext-install pdo_mysql && \
-    docker-php-ext-install intl && \
-    docker-php-ext-install opcache && \
-    docker-php-ext-install exif && \
-    docker-php-ext-install zip && \
-    docker-php-ext-install xml && \
-    docker-php-ext-install soap && \
-    docker-php-ext-install sockets && \
-    docker-php-ext-install xsl && \
-    apk del build-essentials && rm -rf /usr/src/php*
+RUN apt-get update && apt-get install -y \
+    default-mysql-client msmtp perl wget procps libzip-dev libpng-dev libjpeg62-turbo-dev libwebp-dev \
+    libfreetype6-dev libicu-dev bash libxml2-dev libxslt1-dev vim autoconf automake \
+    libtool patch git unzip \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
+    && docker-php-ext-install gd bcmath mysqli pdo_mysql intl opcache exif zip xml soap sockets xsl \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 RUN wget https://getcomposer.org/composer-stable.phar -O /usr/local/bin/composer && chmod +x /usr/local/bin/composer
 
 # Add install n98 to run cron
-RUN wget https://files.magerun.net/n98-magerun2.phar
-RUN chmod +x ./n98-magerun2.phar
-RUN cp ./n98-magerun2.phar /usr/local/bin/
-
-###########################################################################
-# Install Mailhog:
-###########################################################################
-
-RUN apk update && \
-    apk add ssmtp && \
-    sed -e s/mailhub=mail/mailhub=mailhog:1025/g /etc/ssmtp/ssmtp.conf > ssmtp.conf.tmp && \
-    mv ssmtp.conf.tmp /etc/ssmtp/ssmtp.conf
-
+RUN wget https://files.magerun.net/n98-magerun2.phar \
+    && chmod +x ./n98-magerun2.phar \
+    && cp ./n98-magerun2.phar /usr/local/bin/
 
 # Define the variable in the Dockerfile
 ARG INSTALL_XDEBUG
@@ -49,14 +27,11 @@ ENV PHP_VERSION=${PHP_VERSION}
 RUN if [ ${INSTALL_XDEBUG} = true ]; then \
   # Install the xdebug extension
   # https://xdebug.org/docs/compat
-  apk add --no-cache --virtual .build-deps $PHPIZE_DEPS && \
-  apk add --update linux-headers && \
   if [ $(php -r "echo PHP_MAJOR_VERSION;") = "8" ] || { [ $(php -r "echo PHP_MAJOR_VERSION;") = "7" ] && { [ $(php -r "echo PHP_MINOR_VERSION;") = "4" ] || [ $(php -r "echo PHP_MINOR_VERSION;") = "3" ] ;} ;}; then \
-    # Why change to 8.2.4 ????? Maybe same variable name
-    if [ ${PHP_VERSION} = "8.2.4" ] || [ ${PHP_VERSION} = "8.2" ]; then \
-      pecl install xdebug-3.2.0; \
+    if [ $(php -r "echo PHP_MAJOR_VERSION;") = "8" ]; then \
+      pecl install xdebug-3.3.0; \
     else \
-      pecl install xdebug-3.1.4; \
+      pecl install xdebug-3.1.6; \
     fi; \
   else \
     if [ $(php -r "echo PHP_MAJOR_VERSION;") = "5" ]; then \
@@ -69,14 +44,11 @@ RUN if [ ${INSTALL_XDEBUG} = true ]; then \
       fi \
     fi \
   fi && \
-  docker-php-ext-enable xdebug && \
-  apk del -f .build-deps \
+  docker-php-ext-enable xdebug \
 ;fi
-
 
 # Copy xdebug configuration for remote debugging
 COPY ./xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
-
 
 ARG XDEBUG_PORT=9003
 ENV XDEBUG_PORT=${XDEBUG_PORT}
@@ -95,17 +67,22 @@ RUN if [ $(php -r "echo PHP_MAJOR_VERSION;") = "8" ] || { [ $(php -r "echo PHP_M
 ;fi
 RUN sed -i "s/xdebug.cli_color=0/xdebug.cli_color=1/" /usr/local/etc/php/conf.d/xdebug.ini
 
-# Install mailhog
-RUN apk add --no-cache curl go && \
-    echo $PATH && \
-    go version && \
-    go install github.com/mailhog/mhsendmail@latest
-RUN cp /root/go/bin/mhsendmail /usr/bin/mhsendmail
-RUN echo 'sendmail_path = /usr/bin/mhsendmail --smtp-addr mailhog_mmem:1025' > /usr/local/etc/php/php.ini
+###########################################################################
+# Install Mailhog:
+###########################################################################
 
-RUN apk add ssmtp && \
-    sed -e s/mailhub=mail/mailhub=mailhog:1025/g /etc/ssmtp/ssmtp.conf > ssmtp.conf.tmp && \
-    mv ssmtp.conf.tmp /etc/ssmtp/ssmtp.conf
+RUN apt-get update && apt-get install -y ssmtp \
+    && sed -e s/mailhub=mail/mailhub=mailhog:1025/g /etc/ssmtp/ssmtp.conf > ssmtp.conf.tmp \
+    && mv ssmtp.conf.tmp /etc/ssmtp/ssmtp.conf \
+
+RUN apt-get update && apt-get install -y curl golang-go \
+    && go install github.com/mailhog/mhsendmail@latest \
+    && cp /root/go/bin/mhsendmail /usr/bin/mhsendmail \
+    && echo 'sendmail_path = /usr/bin/mhsendmail --smtp-addr mailhog_mmem:1025' > /usr/local/etc/php/php.ini
+
+RUN apt-get install -y ssmtp \
+    && sed -e s/mailhub=mail/mailhub=mailhog:1025/g /etc/ssmtp/ssmtp.conf > ssmtp.conf.tmp \
+    && mv ssmtp.conf.tmp /etc/ssmtp/ssmtp.conf
 
 WORKDIR /var/www/html
 
