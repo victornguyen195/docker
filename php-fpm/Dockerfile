@@ -2,11 +2,15 @@ ARG PHP_VERSION
 
 FROM php:${PHP_VERSION}-fpm-alpine
 
-RUN apk add --no-cache mysql-client msmtp perl wget procps shadow libzip libpng libjpeg-turbo libwebp freetype icu icu-data-full bash libxml2-dev libxslt-dev linux-headers vim php-pear autoconf automake libtool patch git
+RUN apk update && \
+   apk add --no-cache mysql-client msmtp perl wget procps shadow libzip libpng libjpeg-turbo libwebp freetype icu icu-data-full bash libxml2-dev libxslt-dev linux-headers vim php-pear autoconf automake libtool patch git
 
 RUN apk add --no-cache --virtual build-essentials \
     icu-dev icu-libs zlib-dev g++ make automake autoconf libzip-dev \
-    libpng-dev libwebp-dev libjpeg-turbo-dev freetype-dev && \
+    libwebp-dev libjpeg-turbo-dev freetype-dev && \
+    apk cache clean && \
+    apk update && \
+    apk add --no-cache --virtual libpng-dev-1.6.43-r0 && \
     docker-php-ext-configure gd --enable-gd --with-freetype --with-jpeg --with-webp && \
     docker-php-ext-install gd && \
     docker-php-ext-install bcmath && \
@@ -96,7 +100,8 @@ RUN if [ $(php -r "echo PHP_MAJOR_VERSION;") = "8" ] || { [ $(php -r "echo PHP_M
 RUN sed -i "s/xdebug.cli_color=0/xdebug.cli_color=1/" /usr/local/etc/php/conf.d/xdebug.ini
 
 # Install mailhog
-RUN apk add --no-cache curl go && \
+RUN apk update && \
+    apk add --no-cache curl go && \
     echo $PATH && \
     go version && \
     go install github.com/mailhog/mhsendmail@latest
