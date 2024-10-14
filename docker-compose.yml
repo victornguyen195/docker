@@ -201,6 +201,18 @@ services:
       - frontend
       - backend
 
+### SFTP ################################################
+#  sftp_mmem:
+#    image: atmoz/sftp
+#    container_name: sftp_mmem
+#    volumes:
+#      - ./storage/sftp-data:/home/victor/upload
+#    environment:
+#      SFTP_USERS: "victor:password:1001"
+#    networks:
+#      - frontend
+#      - backend
+
 ### Certbot #########################################
 #  certbot:
 #    build:
