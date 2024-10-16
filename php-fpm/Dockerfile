@@ -26,6 +26,18 @@ RUN apk add --no-cache --virtual build-essentials \
     docker-php-ext-install xsl && \
     apk del build-essentials && rm -rf /usr/src/php*
 
+# Update package list and install dependencies
+RUN apk update && apk add --no-cache autoconf g++ make
+
+# Install PHP development tools
+RUN apk add --no-cache $PHPIZE_DEPS
+
+# Install mailparse extension
+RUN pecl install mailparse && docker-php-ext-enable mailparse
+
+# Clean up unnecessary packages
+RUN apk del autoconf g++ make
+
 RUN wget https://getcomposer.org/composer-stable.phar -O /usr/local/bin/composer && chmod +x /usr/local/bin/composer
 
 # Add install n98 to run cron
