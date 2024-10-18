@@ -8,9 +8,6 @@ RUN apk update && \
 RUN apk add --no-cache --virtual build-essentials \
     icu-dev icu-libs zlib-dev g++ make automake autoconf libzip-dev \
     libwebp-dev libjpeg-turbo-dev freetype-dev && \
-    apk cache clean && \
-    apk update && \
-    apk add --no-cache --virtual libpng-dev-1.6.43-r0 && \
     docker-php-ext-configure gd --enable-gd --with-freetype --with-jpeg --with-webp && \
     docker-php-ext-install gd && \
     docker-php-ext-install bcmath && \
