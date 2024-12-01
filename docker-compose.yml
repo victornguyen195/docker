@@ -73,6 +73,22 @@ services:
       - ./php-fpm/php${PHP_VERSION}.ini:/usr/local/etc/php/php.ini
       - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
 
+### CRON ##############################################
+  cron:
+    extends:
+      service: php-fpm
+    container_name: ${CONTAINER_CRON_NAME:-cron}
+    build:
+      context: ./cron
+      args:
+        - CONTAINER_PHP_NAME=${CONTAINER_PHP_NAME:-php-fpm}
+    networks:
+      - backend
+    volumes:
+      - ./cron/crontab:/etc/cron.d/magento-cron
+    depends_on:
+      - php-fpm
+
 ### Percona ################################################
   percona:
     container_name: ${CONTAINER_PERCONA_NAME:-percona}
