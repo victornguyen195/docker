@@ -16,5 +16,5 @@ while true; do
 done &
 
 # Start the cron daemon
-CMD ["exec", "cron", "-f"]
+exec cron -f
 

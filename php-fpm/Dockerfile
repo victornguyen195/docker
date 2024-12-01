@@ -52,7 +52,7 @@ COPY ./xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
 ARG XDEBUG_PORT=9003
 ENV XDEBUG_PORT=${XDEBUG_PORT}
 RUN if [ $(php -r "echo PHP_MAJOR_VERSION;") = "8" ] || { [ $(php -r "echo PHP_MAJOR_VERSION;") = "7" ] && { [ $(php -r "echo PHP_MINOR_VERSION;") = "4" ] || [ $(php -r "echo PHP_MINOR_VERSION;") = "3" ] ;} ;}; then \
-  sed -i "s/xdebug.remote_host=/xdebug.client_host=/" /usr/local/etc/php/conf.d/xdebug.ini && \
+  sed -i "s/xdebug.remote_host=/;xdebug.client_host=/" /usr/local/etc/php/conf.d/xdebug.ini && \
   sed -i "s/xdebug.remote_connect_back=0/xdebug.discover_client_host=true/" /usr/local/etc/php/conf.d/xdebug.ini && \
   sed -i "s/xdebug.remote_port=9000/xdebug.client_port=${XDEBUG_PORT}/" /usr/local/etc/php/conf.d/xdebug.ini && \
   sed -i "s/xdebug.profiler_enable=0/; xdebug.profiler_enable=1/" /usr/local/etc/php/conf.d/xdebug.ini && \
