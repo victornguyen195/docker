@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     mariadb-client msmtp perl wget procps vim autoconf automake libtool \
     libzip-dev libpng-dev libjpeg-dev libwebp-dev libfreetype6-dev libicu-dev zlib1g-dev \
-    libxml2-dev libxslt1-dev linux-headers-amd64 bash && \
+    libxml2-dev libxslt1-dev linux-headers-amd64 bash zip && \
     docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp && \
     docker-php-ext-install gd bcmath mysqli pdo_mysql intl opcache exif zip xml soap sockets xsl && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -27,7 +27,7 @@ ENV PHP_VERSION=${PHP_VERSION}
 RUN if [ ${INSTALL_XDEBUG} = true ]; then \
   apt-get update && apt-get install -y $PHPIZE_DEPS linux-headers-amd64 && \
   if [ $(php -r "echo PHP_MAJOR_VERSION;") = "8" ] || { [ $(php -r "echo PHP_MAJOR_VERSION;") = "7" ] && { [ $(php -r "echo PHP_MINOR_VERSION;") = "4" ] || [ $(php -r "echo PHP_MINOR_VERSION;") = "3" ] ;} ;}; then \
-    if [ ${PHP_VERSION} = "8.2.4" ] || [ ${PHP_VERSION} = "8.2" ]  || [ ${PHP_VERSION} = "8.3.4" ]; then \
+    if [ ${PHP_VERSION} = "8.2.4" ] || [ ${PHP_VERSION} = "8.2" ]  || [ ${PHP_VERSION} = "8.3.4" || [ ${PHP_VERSION} = "8.3" ]; then \
       pecl install xdebug-3.3.0; \
     else \
       pecl install xdebug-3.1.4; \
