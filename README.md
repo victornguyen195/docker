@@ -133,3 +133,37 @@ Run -> Edit Configurations -> + icon -> PHP Web Page
 ```
 ### If you want to use RabbitMQ, uncomment rabbitmq in docker-compose.yml file
 ### If you want to use Opensearch instead of Elasticsearch, uncomment opensearch in docker-compose.yml file and comment elasticsearch
+
+
+### Note
+Sometime you will need to get the dependencies in the private repository. So you need to add the following lines
+Let's take UBT project as an example
+- In the ~/.ssh/config 
+```text
+Host bitbucket.org
+    AddKeysToAgent yes
+    IdentityFile ~/.ssh/ubt
+```
+Note that the host should keep the origin bitbucket.org instead of the custom one
+
+Then add these lines to nginx and php-fpm services in docker-compose file
+```text
+    volumes:
+      - ~/.config/composer:/root/.config/composer:cached
+      - ~/.ssh/:/root/.ssh/:cached
+```
+At this step you should better make a clone of ~/.config/composer and ~/.ssh to keep the data safe before mounting the clone to the container.
+```text
+    volumes:
+      - ~/.config/composercopy:/root/.config/composer:cached
+      - ~/.sshcopy/:/root/.ssh/:cached
+```
+- Install git and CA certificates in the container
+```text
+apt update && apt install -y git && sudo apt install -y ca-certificates
+```
+- In the container make sure you've configured successfully
+```text
+chown root:root /root/.ssh/config   
+ssh -T git@bitbucket.org
+```
